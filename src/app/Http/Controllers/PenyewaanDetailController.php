@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PenyewaanDetailRequest;
+use App\Models\Alat;
 use App\Models\PenyewaanDetail;
 use Exception;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class PenyewaanDetailController extends Controller
 {
@@ -33,12 +35,27 @@ class PenyewaanDetailController extends Controller
         }
     }
 
-    public function store(PenyewaanDetailRequest $request) {
+    public function store(PenyewaanDetailRequest $request)
+    {
+        DB::beginTransaction();
         try {
-            $data = PenyewaanDetail::create($request->validated());
+            $validated = $request->validated();
+
+            $alat = Alat::find($validated['penyewaan_detail_alat_id']);
+
+            if (!$alat || $alat->alat_stok < $validated['penyewaan_detail_jumlah']) {
+                throw new Exception("Stok alat {$alat->alat_nama} tidak mencukupi.");
+            }
+
+            $alat->decrement('alat_stok', $validated['penyewaan_detail_jumlah']);
+
+            $data = PenyewaanDetail::create($validated);
+
+            DB::commit();
             Cache::forget('penyewaan_detail');
             return $this->jsonResponse(true, 'Sukses menambahkan data penyewaan detail', $data);
         } catch (Exception $error) {
+            DB::rollBack();
             return $this->jsonResponse(false, 'Terjadi kesalahan pada server', null, $error->getMessage(), 500);
         }
     }
