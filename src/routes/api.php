@@ -13,26 +13,26 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminController;
 
 
-Route::controller(AuthController::class)->prefix('access')->group(function () {
+Route::controller(AuthController::class)->prefix('access')->group(function(){
     Route::post('/login',  'login');
-    Route::post('/register', 'register');
+    Route::post('/register','register');
     Route::post('/refresh-token', 'refresh');
-    Route::post('/password-reset/request', 'requestReset');
-    Route::post('/password-reset', 'resetPassword');
-    Route::get('/user', 'user');
+    Route::post('/password-reset/request','requestReset');
+    Route::post('/password-reset','resetPassword');
 });
-Route::post('/admin/login', [AdminController::class, 'login']);
-Route::post('/admin/logout', [AdminController::class, 'logout']);
+    Route::post('/admin/login', [AdminController::class, 'login']);
+    Route::post('/admin/logout', [AdminController::class, 'logout']);
 
 //Verify token saya gunakan untuk mengecek jika yang hanya bisa dimasukkan adalah accesstoken bukan refresh token
 
-Route::middleware(['auth:api', VerifyAccessToken::class])->group(function () {
+Route::middleware(['auth:api',VerifyAccessToken::class])->group(function(){
     Route::get('/user', [AuthController::class, 'getUser']);
-    Route::post('/logout', [AuthController::class, 'logout']);
-    Route::apiResource('/alat', AlatController::class);
-    Route::apiResource('/kategori', KategoriController::class);
-    Route::apiResource('/pelanggan', PelangganController::class);
-    Route::apiResource('/data/pelanggan', PelangganDataController::class);
-    Route::apiResource('/penyewaan', PenyewaanController::class);
-    Route::apiResource('/detail/penyewaan', PenyewaanDetailController::class);
+    Route::post('/logout',[AuthController::class,'logout']);
+    Route::apiResource('/alat',AlatController::class);
+    Route::apiResource('/kategori',KategoriController::class);
+    Route::apiResource('/pelanggan',PelangganController::class);
+    Route::apiResource('/data/pelanggan',PelangganDataController::class);
+    Route::apiResource('/penyewaan',PenyewaanController::class);
+    Route::apiResource('/detail/penyewaan',PenyewaanDetailController::class);
 });
+
